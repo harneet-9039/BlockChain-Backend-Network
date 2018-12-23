@@ -37,10 +37,11 @@ class Block{
 		do{
 		nonce++;
 		timestamp = Date.now();
-		hash = Block.hash(timestamp,lastHash,data, nonce);
-	} while(hash.substring(0,DIFFICULTY)!== '0'.repeat(DIFFICULTY));
+		difficulty = Block.adjustDifficulty(lastBlock, timestamp);
+		hash = Block.hash(timestamp,lastHash,data, nonce, difficulty);
+	} while(hash.substring(0,difficulty)!== '0'.repeat(difficulty));
 
-		return new this(timestamp, lastHash, hash, data, nonce);
+		return new this(timestamp, lastHash, hash, data, nonce, difficulty);
 	}
 
 	static hash(timestamp, lastHash, data, nonce, difficulty)
@@ -51,6 +52,13 @@ class Block{
 	static blockHash(block){
 		const {timestamp, lastHash, data, nonce, difficulty} = block;
 		return Block.hash(timestamp,lastHash,data, nonce, difficulty);
+	}
+
+	static adjustDifficulty(lastBlock, currentTime)
+	{
+		let difficulty = lastBlock.difficulty;
+		difficulty = lastBlock.timestamp + MINE_RATE > currentTime ? difficulty+1:difficulty-1;
+		return difficulty;
 	}
 }
 
