@@ -1,14 +1,16 @@
 const TransactionPool = require('./transaction-pool');
 const Transaction = require('./transaction');
 const Wallet = require('./index');
+const BLockChain = require('../blockchain');
 
 describe('TransactionPool',()=>{
-let tp, wallet, transaction;
+let tp, wallet, transaction, bc;
 
 beforeEach(()=>{
 tp= new TransactionPool();
 wallet = new Wallet();
-transaction = wallet.createTransaction('r4nd-4dr355',30,tp);
+bc = new BLockChain();
+transaction = wallet.createTransaction('r4nd-4dr355',30,bc,tp);
 });
 
 it('It adds a transaction the pool',()=>{
@@ -36,7 +38,7 @@ describe('mixing valid and corrupt transaction',()=>{
         //add valid as well as corrupt transactions
         for(let i=0;i<6;i++){
         wallet = new Wallet();
-        transaction = wallet.createTransaction('r4nd-4dr355',30,tp);
+        transaction = wallet.createTransaction('r4nd-4dr355',30,bc,tp);
         if(i%2==0){
             transaction.input.amount = 99999;
         } else{

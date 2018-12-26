@@ -18,8 +18,9 @@ class Wallet {
     return this.keyPair.sign(dataHash);
   }
 
-  createTransaction(recipient, amount, transactionPool){
+  createTransaction(recipient, amount, blockchain, transactionPool){
   {
+    this.balance = this.calculateBalance(blockchain);
     if(amount>this.balance)
     return;
   }
@@ -33,6 +34,42 @@ class Wallet {
     transactionPool.updateOrAddTransaction(transaction);
   }
   return transaction;
+  }
+
+  //calculate balance before every trans, as to see if user has sufficient balance or not
+  // looking at the most recent transaction output where PK matches the user
+  calculateBalance(blockchain){
+    let balance = this.balance;
+    let transactions = [];
+
+    //for each block in blockchain
+
+    blockchain.chain.forEach(block=> block.data.forEach(transaction=>{
+    transactions.push(transaction);
+    }));
+
+    const WalletInputTs = transactions.filter(transaction => transaction.input.address === this.publicKey);
+    let startTime = 0;
+    if(WalletInputTs.length > 0){
+    const recentInputT = WalletInputTs.reduce(
+      (prev, curr) => prev.input.timestamp > current.input.timestamp? prev : current
+    );
+
+    balance = recentInputT.outputs.find(output=>output.address === this.publicKey).amount;
+    startTime = recentInputT.input.timestamp;
+    }
+
+    transactions.forEach(transaction => {
+      if(transaction.input.timestamp > startTime){
+        transaction.outputs.find(output => {
+      if(output.address === this.publicKey){
+      balance+=output.amount;
+}
+        });
+      }
+    });
+
+    return balance;
   }
 
   //create blockchain wallet for rewarding miners
